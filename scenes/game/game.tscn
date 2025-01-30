@@ -1,0 +1,91 @@
+[gd_scene load_steps=4 format=3 uid="uid://dnqssjwsfk3c2"]
+
+[ext_resource type="Script" path="res://scenes/game/game.gd" id="1_a8fth"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_a202k"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7r7uq"]
+bg_color = Color(0, 0.254902, 0.286275, 1)
+
+[node name="Game" type="CanvasLayer"]
+script = ExtResource("1_a8fth")
+
+[node name="StatusLabel" type="Label" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -11.5
+offset_right = 20.0
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_a202k")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -202.5
+offset_top = -40.0
+offset_right = 202.5
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 20
+
+[node name="ShuffleButton" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+text = "Крутить барабан"
+
+[node name="TriggerButton" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+text = "Спустить курок"
+
+[node name="PassButton" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+text = "Передать ход"
+
+[node name="Hub" type="Panel" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_7r7uq")
+metadata/_edit_lock_ = true
+
+[node name="ReadyButton" type="Button" parent="Hub"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -80.5
+offset_top = -37.5
+offset_right = 80.5
+offset_bottom = 37.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 48
+text = "READY"
+
+[node name="DisconnectButton" type="Button" parent="Hub"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -94.0
+offset_bottom = 31.0
+grow_horizontal = 0
+text = "Disconnect"
+flat = true
+
+[connection signal="pressed" from="Hub/ReadyButton" to="." method="_on_ready_button_pressed"]
+[connection signal="pressed" from="Hub/DisconnectButton" to="." method="_on_disconnect_button_pressed"]
