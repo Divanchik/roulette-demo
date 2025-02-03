@@ -1,12 +1,5 @@
 extends CanvasLayer
 
-var is_loading = false
-
-
-func _physics_process(_delta: float) -> void:
-	if is_loading:
-		$LoadingIcon.rotation_degrees += 10
-
 
 func _on_join_button_pressed() -> void:
 	$TitleContainer.hide()
@@ -34,11 +27,8 @@ func _on_join_address_button_pressed() -> void:
 		$TitleContainer.show()
 		return
 	var success = Client.join($JoinContainer/JoinAddress.text)
-	$LoadingIcon.show()
-	is_loading = true
-	await get_tree().create_timer(2).timeout
-	$LoadingIcon.hide()
-	is_loading = false
+	$AnimationPlayer.play("loading")
+	await $AnimationPlayer.animation_finished
 	if success and Client.is_open():
 		get_tree().change_scene_to_file("res://scenes/game/game.tscn")
 	else:

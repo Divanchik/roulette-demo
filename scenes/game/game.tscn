@@ -26,15 +26,26 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_a202k")
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="ReturnButton" type="Button" parent="."]
+visible = false
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -58.5
+offset_right = 58.5
+offset_bottom = 31.0
+grow_horizontal = 2
+text = "Return to title"
+
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -202.5
-offset_top = -40.0
-offset_right = 202.5
+offset_left = -149.5
+offset_top = -31.0
+offset_right = 149.5
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_constants/separation = 20
@@ -47,11 +58,8 @@ text = "Крутить барабан"
 layout_mode = 2
 text = "Спустить курок"
 
-[node name="PassButton" type="Button" parent="HBoxContainer"]
-layout_mode = 2
-text = "Передать ход"
-
 [node name="Hub" type="Panel" parent="."]
+visible = false
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -87,5 +95,8 @@ grow_horizontal = 0
 text = "Disconnect"
 flat = true
 
+[connection signal="pressed" from="ReturnButton" to="." method="_on_return_button_pressed"]
+[connection signal="pressed" from="HBoxContainer/ShuffleButton" to="." method="_on_shuffle_button_pressed"]
+[connection signal="pressed" from="HBoxContainer/TriggerButton" to="." method="_on_trigger_button_pressed"]
 [connection signal="pressed" from="Hub/ReadyButton" to="." method="_on_ready_button_pressed"]
 [connection signal="pressed" from="Hub/DisconnectButton" to="." method="_on_disconnect_button_pressed"]

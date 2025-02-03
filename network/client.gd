@@ -1,7 +1,9 @@
 extends Node
 
 signal game_start
+signal my_turn(cylinder)
 
+var id = -1
 var ws = WebSocketPeer.new()
 var log_closed = false
 
@@ -9,8 +11,9 @@ func _process(_delta: float) -> void:
 	ws.poll()
 	var state = ws.get_ready_state()
 	if state == WebSocketPeer.STATE_OPEN:
-		while ws.get_available_packet_count():
-			print("Packet: ", ws.get_packet())
+		while ws.get_available_packet_count() > 0:
+			var command: Dictionary = JSON.parse_string(ws.get_packet().get_string_from_utf8())
+			handle_message(command)
 	elif state == WebSocketPeer.STATE_CLOSING:
 		pass
 	elif state == WebSocketPeer.STATE_CLOSED and log_closed:
@@ -18,6 +21,15 @@ func _process(_delta: float) -> void:
 		var code = ws.get_close_code()
 		var reason = ws.get_close_reason()
 		print("WebSocket closed with code: %d, reason %s. Clean: %s" % [code, reason, code != -1])
+
+func handle_message(message: Dictionary):
+	print(">>> ", JSON.stringify(message))
+	if message["command"] == "start":
+		game_start.emit()
+	elif message["command"] == "join":
+		id = message["id"]
+	elif message["command"] == "turn" and message["id"] == id:
+		my_turn.emit(message["cylinder"])
 
 func is_open():
 	var state = ws.get_ready_state()
@@ -36,7 +48,7 @@ func join(url: String) -> bool:
 func leave():
 	ws.close()
 
-func send_command(comm: Dictionary) -> bool:
+func send(comm: Dictionary) -> bool:
 	var err = ws.send_text(JSON.stringify(comm))
 	if err != OK:
 		return false
