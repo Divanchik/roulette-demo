@@ -26,7 +26,9 @@ func on_game_start():
 
 
 func on_my_turn(last_cylinder: Array):
+	await get_tree().create_timer(1.0).timeout
 	$StatusLabel.text = "My turn"
+	$Sounds/CockSound.play()
 	cylinder.clear()
 	cylinder.append_array(last_cylinder)
 	shuffled = false
@@ -37,12 +39,13 @@ func on_my_turn(last_cylinder: Array):
 func _on_shuffle_button_pressed() -> void:
 	$HBoxContainer/ShuffleButton.disabled = true
 	cylinder.shuffle()
-
+	$Sounds/ShuffleSound.play()
 
 func _on_trigger_button_pressed() -> void:
 	cylinder.push_front(cylinder.pop_back())
 	if cylinder.front() == 1:
 		$StatusLabel.text = "Boom!"
+		$Sounds/GunshotSound.play()
 		Client.send({"command": "lose", "cylinder": cylinder})
 		await get_tree().create_timer(1.0).timeout
 		Client.leave()
@@ -50,6 +53,7 @@ func _on_trigger_button_pressed() -> void:
 		$ReturnButton.show()
 	else:
 		$StatusLabel.text = "Click..."
+		$Sounds/TriggerSound.play()
 		Client.send({"command": "pass", "cylinder": cylinder})
 
 

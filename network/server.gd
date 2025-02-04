@@ -9,7 +9,16 @@ var started = false
 var turn = 0
 
 func _ready() -> void:
-	serv.listen(5000)
+	Performance.add_custom_monitor("Network/Players", get_players_count)
+
+func get_players_count():
+	return players.size()
+
+func start(port: int, address: String = "127.0.0.1"):
+	if address == "localhost":
+		return serv.listen(port) == OK
+	return serv.listen(port, address) == OK
+
 
 func _process(_delta: float) -> void:
 	# accept new connections
@@ -28,7 +37,10 @@ func _process(_delta: float) -> void:
 			players.erase(id)
 			print("< ", id)
 
+
 func accept_connection():
+	if not serv.is_listening():
+		return
 	stream = serv.take_connection()
 	if stream != null and stream.get_status() == StreamPeerTCP.STATUS_CONNECTED:
 		var ws = WebSocketPeer.new()
@@ -37,12 +49,14 @@ func accept_connection():
 			var id = hash(ws.get_connected_host() + str(ws.get_connected_port()))
 			players[id] = ws
 			while ws.get_ready_state() != WebSocketPeer.STATE_OPEN:
+				await get_tree().create_timer(1.0).timeout
 				ws.poll()
 			ws.send_text(JSON.stringify({"command": "join", "id": id}))
-			print("> ", id)
+			print("> %d (%s:%d)" % [id, ws.get_connected_host(), ws.get_connected_port()])
 			print("Total ", players.size(), " players")
 		else:
 			print("Error while accepting stream: ", err)
+
 
 func broadcast(comm: Dictionary):
 	for ws: WebSocketPeer in players.values():
@@ -50,12 +64,6 @@ func broadcast(comm: Dictionary):
 		if ws.get_ready_state() == WebSocketPeer.STATE_OPEN:
 			ws.send_text(JSON.stringify(comm))
 
-#func send(ws: WebSocketPeer, comm: Dictionary) -> bool:
-	#var err = ws.send_text(JSON.stringify(comm))
-	#if err != OK:
-		#return false
-	#else:
-		#return true
 
 func handle_message(id: int, message: Dictionary):
 	if message["command"] == "ready":

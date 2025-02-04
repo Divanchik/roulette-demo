@@ -1,6 +1,10 @@
-[gd_scene load_steps=4 format=3 uid="uid://dnqssjwsfk3c2"]
+[gd_scene load_steps=8 format=3 uid="uid://dnqssjwsfk3c2"]
 
 [ext_resource type="Script" path="res://scenes/game/game.gd" id="1_a8fth"]
+[ext_resource type="AudioStream" uid="uid://bixsob6cjfi1v" path="res://sounds/shuffle.wav" id="2_6gxgs"]
+[ext_resource type="AudioStream" uid="uid://dxcf3pwop1oi6" path="res://sounds/trigger.mp3" id="3_jryry"]
+[ext_resource type="AudioStream" uid="uid://padqpcbu5ml1" path="res://sounds/cock.wav" id="4_eicjw"]
+[ext_resource type="AudioStream" uid="uid://c6xitxjx47koo" path="res://sounds/gunshot.wav" id="5_qlevd"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_a202k"]
 
@@ -9,6 +13,24 @@ bg_color = Color(0, 0.254902, 0.286275, 1)
 
 [node name="Game" type="CanvasLayer"]
 script = ExtResource("1_a8fth")
+
+[node name="Sounds" type="Node" parent="."]
+
+[node name="ShuffleSound" type="AudioStreamPlayer" parent="Sounds"]
+stream = ExtResource("2_6gxgs")
+volume_db = -5.0
+
+[node name="TriggerSound" type="AudioStreamPlayer" parent="Sounds"]
+stream = ExtResource("3_jryry")
+volume_db = -5.0
+
+[node name="CockSound" type="AudioStreamPlayer" parent="Sounds"]
+stream = ExtResource("4_eicjw")
+volume_db = -10.0
+
+[node name="GunshotSound" type="AudioStreamPlayer" parent="Sounds"]
+stream = ExtResource("5_qlevd")
+volume_db = -10.0
 
 [node name="StatusLabel" type="Label" parent="."]
 anchors_preset = 8

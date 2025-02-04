@@ -38,10 +38,14 @@ func is_open():
 	return false
 
 func join(url: String) -> bool:
+	print("Joining [", url, "]...")
+	ws = WebSocketPeer.new()
 	var err = ws.connect_to_url(url)
 	if err != OK:
+		printerr("Join error: ", err)
 		return false
 	else:
+		print("Join success")
 		log_closed = true
 		return true
 
