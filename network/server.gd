@@ -19,6 +19,14 @@ func start(port: int, address: String = "127.0.0.1"):
 		return serv.listen(port) == OK
 	return serv.listen(port, address) == OK
 
+func is_running():
+	return serv.is_listening()
+
+func stop():
+	for id in players.keys():
+		players[id].close()
+	players.clear()
+	serv.stop()
 
 func _process(_delta: float) -> void:
 	# accept new connections
@@ -44,25 +52,25 @@ func accept_connection():
 	stream = serv.take_connection()
 	if stream != null and stream.get_status() == StreamPeerTCP.STATUS_CONNECTED:
 		var ws = WebSocketPeer.new()
-		var err = ws.accept_stream(stream)
-		if err == OK:
+		if ws.accept_stream(stream) == OK:
 			var id = hash(ws.get_connected_host() + str(ws.get_connected_port()))
 			players[id] = ws
 			while ws.get_ready_state() != WebSocketPeer.STATE_OPEN:
 				await get_tree().create_timer(1.0).timeout
-				ws.poll()
-			ws.send_text(JSON.stringify({"command": "join", "id": id}))
-			print("> %d (%s:%d)" % [id, ws.get_connected_host(), ws.get_connected_port()])
-			print("Total ", players.size(), " players")
-		else:
-			print("Error while accepting stream: ", err)
+			send(ws, {"command": "join", "id": id})
+			print("New player #%d (%s:%d)" % [id, ws.get_connected_host(), ws.get_connected_port()])
 
+
+func send(ws: WebSocketPeer, command: Dictionary):
+	ws.send_text(JSON.stringify(command))
+	await get_tree().create_timer(0.5).timeout
 
 func broadcast(comm: Dictionary):
 	for ws: WebSocketPeer in players.values():
 		ws.poll()
 		if ws.get_ready_state() == WebSocketPeer.STATE_OPEN:
 			ws.send_text(JSON.stringify(comm))
+	await get_tree().create_timer(0.5).timeout
 
 
 func handle_message(id: int, message: Dictionary):
@@ -71,6 +79,7 @@ func handle_message(id: int, message: Dictionary):
 		if ready_count == players.size():
 			started = true
 			broadcast({"command": "start"})
+			broadcast({"command": "turn", "id": players.keys()[turn], "cylinder": [1,0,0,0,0,0]})
 	elif message["command"] == "lose":
 		players[id].close()
 		if players.size() == 0:
@@ -80,5 +89,7 @@ func handle_message(id: int, message: Dictionary):
 	elif message["command"] == "pass":
 		turn = 0 if turn + 1 >= players.size() else turn + 1
 		broadcast({"command": "turn", "id": players.keys()[turn], "cylinder": message["cylinder"]})
+	elif message["command"] == "players":
+		broadcast({"command": "players", "players": players.keys()})
 	else:
 		print("Unknown command: ", message["command"])

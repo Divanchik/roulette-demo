@@ -2,6 +2,7 @@ extends Node
 
 signal game_start
 signal my_turn(cylinder)
+signal got_players(players)
 
 var id = -1
 var ws = WebSocketPeer.new()
@@ -30,6 +31,8 @@ func handle_message(message: Dictionary):
 		id = message["id"]
 	elif message["command"] == "turn" and message["id"] == id:
 		my_turn.emit(message["cylinder"])
+	elif message["command"] == "players":
+		got_players.emit(message["players"])
 
 func is_open():
 	var state = ws.get_ready_state()
@@ -38,14 +41,11 @@ func is_open():
 	return false
 
 func join(url: String) -> bool:
-	print("Joining [", url, "]...")
 	ws = WebSocketPeer.new()
 	var err = ws.connect_to_url(url)
 	if err != OK:
-		printerr("Join error: ", err)
 		return false
 	else:
-		print("Join success")
 		log_closed = true
 		return true
 

@@ -28,10 +28,8 @@ func _on_join_address_button_pressed() -> void:
 		$TitleContainer.show()
 		return
 	var success = Client.join($JoinContainer/JoinAddress.text)
-	await get_tree().create_timer(2.0).timeout
-	#$AnimationPlayer.play("loading")
-	#await $AnimationPlayer.animation_finished
-	print("#1")
+	$AnimationPlayer.play("loading")
+	await $AnimationPlayer.animation_finished
 	if success and Client.is_open():
 		get_tree().change_scene_to_file("res://scenes/game/game.tscn")
 	else:
