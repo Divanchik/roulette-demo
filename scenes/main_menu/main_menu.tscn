@@ -1,6 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://bbeotg33mjo3v"]
+[gd_scene load_steps=7 format=3 uid="uid://bbeotg33mjo3v"]
 
 [ext_resource type="Script" path="res://scenes/main_menu/main_menu.gd" id="1_w30ro"]
+[ext_resource type="Theme" uid="uid://dngm1ehddfssc" path="res://components/main.theme" id="2_a3mcj"]
 [ext_resource type="Texture2D" uid="uid://d1nrgce3yb7d6" path="res://icons/arrow-clockwise.svg" id="2_c4s7n"]
 
 [sub_resource type="Animation" id="Animation_vqcmt"]
@@ -78,7 +79,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.724643, 0.724643, 0.724643, 1)
+color = Color(0.152941, 0.152941, 0.266667, 1)
 metadata/_edit_lock_ = true
 
 [node name="TitleContainer" type="VBoxContainer" parent="."]
@@ -93,10 +94,11 @@ offset_right = 146.0
 offset_bottom = 95.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/separation = 10
 
 [node name="Title" type="Label" parent="TitleContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0.524044, 0.506632, 1)
+theme_override_colors/font_color = Color(0.545098, 0.427451, 0.611765, 1)
 theme_override_font_sizes/font_size = 36
 text = "Russian Roulette"
 horizontal_alignment = 1
@@ -104,18 +106,22 @@ vertical_alignment = 1
 
 [node name="JoinButton" type="Button" parent="TitleContainer"]
 layout_mode = 2
+theme = ExtResource("2_a3mcj")
 text = "Join"
 
 [node name="HostButton" type="Button" parent="TitleContainer"]
 layout_mode = 2
+theme = ExtResource("2_a3mcj")
 text = "Host"
 
 [node name="OptionsButton" type="Button" parent="TitleContainer"]
 layout_mode = 2
+theme = ExtResource("2_a3mcj")
 text = "Options"
 
 [node name="ExitButton" type="Button" parent="TitleContainer"]
 layout_mode = 2
+theme = ExtResource("2_a3mcj")
 text = "Exit"
 
 [node name="JoinContainer" type="VBoxContainer" parent="."]
@@ -134,11 +140,23 @@ grow_vertical = 2
 
 [node name="JoinAddress" type="LineEdit" parent="JoinContainer"]
 layout_mode = 2
+theme = ExtResource("2_a3mcj")
 placeholder_text = "192.168.0.1:5000"
 alignment = 1
 
-[node name="JoinAddressButton" type="Button" parent="JoinContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="JoinContainer"]
 layout_mode = 2
+
+[node name="ReturnButton" type="Button" parent="JoinContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("2_a3mcj")
+text = "Back"
+
+[node name="JoinAddressButton" type="Button" parent="JoinContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("2_a3mcj")
 text = "Join game"
 
 [node name="HostContainer" type="VBoxContainer" parent="."]
@@ -157,11 +175,23 @@ grow_vertical = 2
 
 [node name="HostAddress" type="LineEdit" parent="HostContainer"]
 layout_mode = 2
+theme = ExtResource("2_a3mcj")
 placeholder_text = "192.168.0.1:5000"
 alignment = 1
 
-[node name="HostAddressButton" type="Button" parent="HostContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="HostContainer"]
 layout_mode = 2
+
+[node name="ReturnButton" type="Button" parent="HostContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("2_a3mcj")
+text = "Back"
+
+[node name="HostAddressButton" type="Button" parent="HostContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("2_a3mcj")
 text = "Host game"
 
 [node name="AcceptDialog" type="AcceptDialog" parent="."]
@@ -189,5 +219,7 @@ texture = ExtResource("2_c4s7n")
 [connection signal="pressed" from="TitleContainer/HostButton" to="." method="_on_host_button_pressed"]
 [connection signal="pressed" from="TitleContainer/OptionsButton" to="." method="_on_options_button_pressed"]
 [connection signal="pressed" from="TitleContainer/ExitButton" to="." method="_on_exit_button_pressed"]
-[connection signal="pressed" from="JoinContainer/JoinAddressButton" to="." method="_on_join_address_button_pressed"]
-[connection signal="pressed" from="HostContainer/HostAddressButton" to="." method="_on_host_address_button_pressed"]
+[connection signal="pressed" from="JoinContainer/HBoxContainer/ReturnButton" to="." method="_on_return_button_pressed"]
+[connection signal="pressed" from="JoinContainer/HBoxContainer/JoinAddressButton" to="." method="_on_join_address_button_pressed"]
+[connection signal="pressed" from="HostContainer/HBoxContainer/ReturnButton" to="." method="_on_return_button_pressed"]
+[connection signal="pressed" from="HostContainer/HBoxContainer/HostAddressButton" to="." method="_on_host_address_button_pressed"]

@@ -24,7 +24,7 @@ func _process(_delta: float) -> void:
 		print("WebSocket closed with code: %d, reason %s. Clean: %s" % [code, reason, code != -1])
 
 func handle_message(message: Dictionary):
-	print(">>> ", JSON.stringify(message))
+	#print(">>> ", JSON.stringify(message))
 	if message["command"] == "start":
 		game_start.emit()
 	elif message["command"] == "join":

@@ -5,6 +5,7 @@ var shuffled = false
 var cylinder = [1, 0, 0, 0, 0, 0]
 @onready var players_container: VBoxContainer = $ScrollContainer/PlayersContainer
 @onready var players_timer: Timer = $PlayersTimer
+@onready var debug: CanvasLayer = $DebugOverlay
 
 
 func _ready() -> void:
@@ -13,6 +14,7 @@ func _ready() -> void:
 	Client.my_turn.connect(on_my_turn)
 	Client.got_players.connect(on_got_players)
 	if Server.is_running():
+		debug.put("I'm a host, broadcasting players...")
 		players_timer.start()
 
 
@@ -27,6 +29,7 @@ func _on_ready_button_pressed() -> void:
 
 
 func on_game_start():
+	debug.put("Game started!")
 	$Hub.hide()
 
 func on_got_players(players: Array):
@@ -39,6 +42,7 @@ func on_got_players(players: Array):
 
 
 func on_my_turn(last_cylinder: Array):
+	debug.put("My turn: " + str(last_cylinder))
 	await get_tree().create_timer(1.0).timeout
 	$StatusLabel.text = "My turn"
 	$Sounds/CockSound.play()

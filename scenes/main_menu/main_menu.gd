@@ -61,3 +61,9 @@ func _on_host_address_button_pressed() -> void:
 		$AcceptDialog.dialog_text = "Не удалось подключиться к игре"
 		$AcceptDialog.show()
 		$TitleContainer.show()
+
+
+func _on_return_button_pressed() -> void:
+	$JoinContainer.hide()
+	$HostContainer.hide()
+	$TitleContainer.show()

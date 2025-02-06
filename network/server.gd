@@ -28,9 +28,15 @@ func stop():
 	players.clear()
 	serv.stop()
 
+func restart_game():
+	ready_count = 0
+	turn = 0
+	started = false
+	broadcast({"command": "restart"})
+
 func _process(_delta: float) -> void:
 	# accept new connections
-	if not started:
+	if serv.is_listening() and not started:
 		accept_connection()
 	# poll players
 	for id in players.keys():
@@ -47,8 +53,6 @@ func _process(_delta: float) -> void:
 
 
 func accept_connection():
-	if not serv.is_listening():
-		return
 	stream = serv.take_connection()
 	if stream != null and stream.get_status() == StreamPeerTCP.STATUS_CONNECTED:
 		var ws = WebSocketPeer.new()
