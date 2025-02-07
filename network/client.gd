@@ -13,18 +13,16 @@ func _process(_delta: float) -> void:
 	var state = ws.get_ready_state()
 	if state == WebSocketPeer.STATE_OPEN:
 		while ws.get_available_packet_count() > 0:
-			var command: Dictionary = JSON.parse_string(ws.get_packet().get_string_from_utf8())
-			handle_message(command)
-	elif state == WebSocketPeer.STATE_CLOSING:
-		pass
+			handle_message(ws.get_var())
 	elif state == WebSocketPeer.STATE_CLOSED and log_closed:
 		log_closed = false
 		var code = ws.get_close_code()
-		var reason = ws.get_close_reason()
-		print("WebSocket closed with code: %d, reason %s. Clean: %s" % [code, reason, code != -1])
+		say("Disconnected, %s" % ["clean" if code == 1 else "not clean"])
+
+func say(s: String):
+	print_rich("[color=orange]" + s + "[/color]")
 
 func handle_message(message: Dictionary):
-	#print(">>> ", JSON.stringify(message))
 	if message["command"] == "start":
 		game_start.emit()
 	elif message["command"] == "join":
@@ -35,10 +33,7 @@ func handle_message(message: Dictionary):
 		got_players.emit(message["players"])
 
 func is_open():
-	var state = ws.get_ready_state()
-	if state == WebSocketPeer.STATE_OPEN:
-		return true
-	return false
+	return ws.get_ready_state() == WebSocketPeer.STATE_OPEN
 
 func join(url: String) -> bool:
 	ws = WebSocketPeer.new()
@@ -52,8 +47,8 @@ func join(url: String) -> bool:
 func leave():
 	ws.close()
 
-func send(comm: Dictionary) -> bool:
-	var err = ws.send_text(JSON.stringify(comm))
+func send(command: Dictionary) -> bool:
+	var err = ws.put_var(command)
 	if err != OK:
 		return false
 	else:

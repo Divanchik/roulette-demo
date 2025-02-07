@@ -122,18 +122,6 @@ theme = ExtResource("6_c18mt")
 theme_override_font_sizes/font_size = 48
 text = "READY"
 
-[node name="DisconnectButton" type="Button" parent="Hub"]
-visible = false
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -94.0
-offset_bottom = 31.0
-grow_horizontal = 0
-text = "Disconnect"
-flat = true
-
 [node name="ScrollContainer" type="ScrollContainer" parent="."]
 anchors_preset = 9
 anchor_bottom = 1.0
@@ -144,7 +132,15 @@ grow_vertical = 2
 layout_mode = 2
 theme_override_constants/separation = 5
 
-[node name="PlayersTimer" type="Timer" parent="."]
+[node name="DisconnectButton" type="Button" parent="."]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -94.0
+offset_bottom = 31.0
+grow_horizontal = 0
+theme = ExtResource("6_c18mt")
+text = "Disconnect"
 
 [node name="DebugOverlay" parent="." instance=ExtResource("6_nro04")]
 visible = false
@@ -153,5 +149,4 @@ visible = false
 [connection signal="pressed" from="HBoxContainer/ShuffleButton" to="." method="_on_shuffle_button_pressed"]
 [connection signal="pressed" from="HBoxContainer/TriggerButton" to="." method="_on_trigger_button_pressed"]
 [connection signal="pressed" from="Hub/ReadyButton" to="." method="_on_ready_button_pressed"]
-[connection signal="pressed" from="Hub/DisconnectButton" to="." method="_on_disconnect_button_pressed"]
-[connection signal="timeout" from="PlayersTimer" to="." method="_on_players_timer_timeout"]
+[connection signal="pressed" from="DisconnectButton" to="." method="_on_disconnect_button_pressed"]

@@ -4,15 +4,19 @@ extends Node
 var players: Dictionary = {}
 var serv = TCPServer.new()
 var stream: StreamPeerTCP
-var ready_count = 0
+var ready_players: Dictionary = {}
 var started = false
 var turn = 0
 
 func _ready() -> void:
-	Performance.add_custom_monitor("Network/Players", get_players_count)
+	pass
+	#Performance.add_custom_monitor("Network/Players", get_players_count)
 
-func get_players_count():
-	return players.size()
+#func get_players_count():
+	#return players.size()
+
+func say(s: String):
+	print_rich("[color=cyan]" + s + "[/color]")
 
 func start(port: int, address: String = "127.0.0.1"):
 	if address == "localhost":
@@ -25,11 +29,13 @@ func is_running():
 func stop():
 	for id in players.keys():
 		players[id].close()
+		while players[id].get_ready_state() != WebSocketPeer.STATE_CLOSED:
+			await get_tree().create_timer(0.1).timeout
 	players.clear()
 	serv.stop()
 
 func restart_game():
-	ready_count = 0
+	ready_players.clear()
 	turn = 0
 	started = false
 	broadcast({"command": "restart"})
@@ -45,11 +51,11 @@ func _process(_delta: float) -> void:
 		var state = ws.get_ready_state()
 		if state == WebSocketPeer.STATE_OPEN:
 			while ws.get_available_packet_count() > 0:
-				var command: Dictionary = JSON.parse_string(ws.get_packet().get_string_from_utf8())
-				handle_message(id, command)
+				handle_message(id, ws.get_var())
 		elif state == WebSocketPeer.STATE_CLOSED:
 			players.erase(id)
-			print("< ", id)
+			broadcast({"command": "players", "players": players.keys()})
+			say("< %d" % id)
 
 
 func accept_connection():
@@ -62,25 +68,27 @@ func accept_connection():
 			while ws.get_ready_state() != WebSocketPeer.STATE_OPEN:
 				await get_tree().create_timer(1.0).timeout
 			send(ws, {"command": "join", "id": id})
-			print("New player #%d (%s:%d)" % [id, ws.get_connected_host(), ws.get_connected_port()])
+			broadcast({"command": "players", "players": players.keys()})
+			say("> %d" % id)
 
 
 func send(ws: WebSocketPeer, command: Dictionary):
-	ws.send_text(JSON.stringify(command))
+	ws.put_var(command)
 	await get_tree().create_timer(0.5).timeout
 
-func broadcast(comm: Dictionary):
+
+func broadcast(command: Dictionary):
 	for ws: WebSocketPeer in players.values():
 		ws.poll()
 		if ws.get_ready_state() == WebSocketPeer.STATE_OPEN:
-			ws.send_text(JSON.stringify(comm))
+			ws.put_var(command)
 	await get_tree().create_timer(0.5).timeout
 
 
 func handle_message(id: int, message: Dictionary):
 	if message["command"] == "ready":
-		ready_count += 1
-		if ready_count == players.size():
+		ready_players[id] = true
+		if ready_players.has_all(players.keys()):
 			started = true
 			broadcast({"command": "start"})
 			broadcast({"command": "turn", "id": players.keys()[turn], "cylinder": [1,0,0,0,0,0]})
@@ -96,4 +104,4 @@ func handle_message(id: int, message: Dictionary):
 	elif message["command"] == "players":
 		broadcast({"command": "players", "players": players.keys()})
 	else:
-		print("Unknown command: ", message["command"])
+		say("Unknown command: %s" % message["command"])
