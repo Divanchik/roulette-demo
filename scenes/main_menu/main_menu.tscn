@@ -107,22 +107,22 @@ vertical_alignment = 1
 [node name="JoinButton" type="Button" parent="TitleContainer"]
 layout_mode = 2
 theme = ExtResource("2_a3mcj")
-text = "Join"
+text = "JOIN"
 
 [node name="HostButton" type="Button" parent="TitleContainer"]
 layout_mode = 2
 theme = ExtResource("2_a3mcj")
-text = "Host"
+text = "HOST"
 
 [node name="OptionsButton" type="Button" parent="TitleContainer"]
 layout_mode = 2
 theme = ExtResource("2_a3mcj")
-text = "Options"
+text = "OPTIONS"
 
 [node name="ExitButton" type="Button" parent="TitleContainer"]
 layout_mode = 2
 theme = ExtResource("2_a3mcj")
-text = "Exit"
+text = "EXIT"
 
 [node name="JoinContainer" type="VBoxContainer" parent="."]
 visible = false
@@ -151,13 +151,13 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme = ExtResource("2_a3mcj")
-text = "Back"
+text = "RETURN"
 
 [node name="JoinAddressButton" type="Button" parent="JoinContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme = ExtResource("2_a3mcj")
-text = "Join game"
+text = "JOIN"
 
 [node name="HostContainer" type="VBoxContainer" parent="."]
 visible = false
@@ -186,13 +186,13 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme = ExtResource("2_a3mcj")
-text = "Back"
+text = "RETURN"
 
 [node name="HostAddressButton" type="Button" parent="HostContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme = ExtResource("2_a3mcj")
-text = "Host game"
+text = "HOST"
 
 [node name="AcceptDialog" type="AcceptDialog" parent="."]
 title = "Ошибка"

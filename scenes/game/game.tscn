@@ -1,29 +1,57 @@
-[gd_scene load_steps=10 format=3 uid="uid://dnqssjwsfk3c2"]
+[gd_scene load_steps=18 format=3 uid="uid://dnqssjwsfk3c2"]
 
 [ext_resource type="Script" path="res://scenes/game/game.gd" id="1_a8fth"]
+[ext_resource type="Shader" path="res://components/postprocessing.gdshader" id="2_6cfiu"]
 [ext_resource type="AudioStream" uid="uid://bixsob6cjfi1v" path="res://sounds/shuffle.wav" id="2_6gxgs"]
 [ext_resource type="AudioStream" uid="uid://dxcf3pwop1oi6" path="res://sounds/trigger.mp3" id="3_jryry"]
 [ext_resource type="AudioStream" uid="uid://padqpcbu5ml1" path="res://sounds/cock.wav" id="4_eicjw"]
 [ext_resource type="AudioStream" uid="uid://c6xitxjx47koo" path="res://sounds/gunshot.wav" id="5_qlevd"]
 [ext_resource type="Theme" uid="uid://dngm1ehddfssc" path="res://components/main.theme" id="6_c18mt"]
 [ext_resource type="PackedScene" uid="uid://cu6q2etpvmnvl" path="res://components/debug_overlay.tscn" id="6_nro04"]
+[ext_resource type="PackedScene" uid="uid://bk40ik7wfw5s8" path="res://components/colt_python.tscn" id="8_5obw5"]
+
+[sub_resource type="Gradient" id="Gradient_w11l2"]
+offsets = PackedFloat32Array(0, 0.2, 0.4, 0.6, 0.8, 1)
+colors = PackedColorArray(0.152941, 0.152941, 0.266667, 1, 0.286275, 0.301961, 0.494118, 1, 0.545098, 0.427451, 0.611765, 1, 0.776471, 0.623529, 0.647059, 1, 0.94902, 0.827451, 0.670588, 1, 0.984314, 0.960784, 0.937255, 1)
+metadata/_snap_enabled = true
+metadata/_snap_count = 5
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_dkcdj"]
+gradient = SubResource("Gradient_w11l2")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_b6k65"]
+shader = ExtResource("2_6cfiu")
+shader_parameter/color_amount = 16
+shader_parameter/gradient = SubResource("GradientTexture1D_dkcdj")
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_a202k"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7r7uq"]
 bg_color = Color(0.286275, 0.301961, 0.494118, 1)
 
+[sub_resource type="PlaneMesh" id="PlaneMesh_8bkda"]
+size = Vector2(10, 10)
+
+[sub_resource type="Environment" id="Environment_7otlq"]
+background_mode = 1
+ambient_light_source = 1
+reflected_light_source = 1
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_3ewfc"]
+top_radius = 3.0
+bottom_radius = 3.0
+height = 1.0
+
 [node name="Game" type="CanvasLayer"]
 script = ExtResource("1_a8fth")
 
 [node name="Background" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_b6k65")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.152941, 0.152941, 0.266667, 1)
-metadata/_edit_lock_ = true
 
 [node name="Sounds" type="Node" parent="."]
 
@@ -44,6 +72,7 @@ stream = ExtResource("5_qlevd")
 volume_db = -10.0
 
 [node name="StatusLabel" type="Label" parent="."]
+visible = false
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -69,7 +98,7 @@ offset_right = 58.5
 offset_bottom = 31.0
 grow_horizontal = 2
 theme = ExtResource("6_c18mt")
-text = "Return to title"
+text = "RETURN"
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
 anchors_preset = 7
@@ -88,13 +117,13 @@ theme_override_constants/separation = 20
 layout_mode = 2
 theme = ExtResource("6_c18mt")
 disabled = true
-text = "Крутить барабан"
+text = "SHUFFLE"
 
 [node name="TriggerButton" type="Button" parent="HBoxContainer"]
 layout_mode = 2
 theme = ExtResource("6_c18mt")
 disabled = true
-text = "Спустить курок"
+text = "TRIGGER"
 
 [node name="Hub" type="Panel" parent="."]
 anchors_preset = 15
@@ -140,10 +169,40 @@ offset_left = -94.0
 offset_bottom = 31.0
 grow_horizontal = 0
 theme = ExtResource("6_c18mt")
-text = "Disconnect"
+text = "DISCONNECT"
 
 [node name="DebugOverlay" parent="." instance=ExtResource("6_nro04")]
 visible = false
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("PlaneMesh_8bkda")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_7otlq")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="WorldEnvironment"]
+light_energy = 0.0
+
+[node name="SpotLight3D" type="SpotLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 3, 3)
+light_color = Color(1, 1, 0.941176, 1)
+shadow_enabled = true
+
+[node name="SpotLight3D2" type="SpotLight3D" parent="."]
+transform = Transform3D(0.64157, -0.417436, 0.643533, 0, 0.838956, 0.5442, -0.767064, -0.349142, 0.538249, 1.98414, 3, 4.94879)
+light_color = Color(1, 1, 0.941176, 1)
+light_energy = 0.5
+shadow_enabled = true
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+mesh = SubResource("CylinderMesh_3ewfc")
+
+[node name="ColtPython" parent="." instance=ExtResource("8_5obw5")]
+transform = Transform3D(-0.798635, 0, 0.601815, 0, 1, 0, -0.601815, 0, -0.798635, 0.127, 1.668, 3.74)
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.71179, 4.0233)
 
 [connection signal="pressed" from="ReturnButton" to="." method="_on_return_button_pressed"]
 [connection signal="pressed" from="HBoxContainer/ShuffleButton" to="." method="_on_shuffle_button_pressed"]

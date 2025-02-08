@@ -6,6 +6,7 @@ var cylinder = [1, 0, 0, 0, 0, 0]
 @onready var players_container: VBoxContainer = $ScrollContainer/PlayersContainer
 @onready var debug: CanvasLayer = $DebugOverlay
 const MAIN = preload("res://components/main.theme")
+@onready var anim = $ColtPython/AnimationPlayer
 
 func _ready() -> void:
 	cylinder.shuffle()
@@ -47,7 +48,8 @@ func on_my_turn(last_cylinder: Array):
 	debug.put("My turn: " + str(last_cylinder))
 	await get_tree().create_timer(0.5).timeout
 	$StatusLabel.text = "My turn"
-	$Sounds/CockSound.play()
+	#$Sounds/CockSound.play()
+	anim.play("cock")
 	cylinder.clear()
 	cylinder.append_array(last_cylinder)
 	shuffled = false
@@ -58,12 +60,14 @@ func on_my_turn(last_cylinder: Array):
 func _on_shuffle_button_pressed() -> void:
 	$HBoxContainer/ShuffleButton.disabled = true
 	cylinder.shuffle()
-	$Sounds/ShuffleSound.play()
+	#$Sounds/ShuffleSound.play()
+	anim.play("shuffle")
 
 func _on_trigger_button_pressed() -> void:
 	$HBoxContainer/ShuffleButton.disabled = true
 	$HBoxContainer/TriggerButton.disabled = true
 	cylinder.push_front(cylinder.pop_back())
+	anim.play("shot")
 	if cylinder.front() == 1:
 		$StatusLabel.text = "Boom!"
 		$Sounds/GunshotSound.play()
