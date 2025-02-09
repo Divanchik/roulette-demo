@@ -67,3 +67,11 @@ func _on_return_button_pressed() -> void:
 	$JoinContainer.hide()
 	$HostContainer.hide()
 	$TitleContainer.show()
+
+
+func _on_credits_0_pressed() -> void:
+	OS.shell_open("https://hyqqm.itch.io/gameready-colt-python-revolver")
+
+
+func _on_credits_1_pressed() -> void:
+	OS.shell_open("https://lospec.com/palette-list/oil-6")

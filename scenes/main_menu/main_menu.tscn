@@ -1,6 +1,7 @@
-[gd_scene load_steps=7 format=3 uid="uid://bbeotg33mjo3v"]
+[gd_scene load_steps=8 format=3 uid="uid://bbeotg33mjo3v"]
 
 [ext_resource type="Script" path="res://scenes/main_menu/main_menu.gd" id="1_w30ro"]
+[ext_resource type="FontFile" uid="uid://qsassnmhuxl7" path="res://fonts/GreatVibes-Regular.ttf" id="2_6mp2g"]
 [ext_resource type="Theme" uid="uid://dngm1ehddfssc" path="res://components/main.theme" id="2_a3mcj"]
 [ext_resource type="Texture2D" uid="uid://d1nrgce3yb7d6" path="res://icons/arrow-clockwise.svg" id="2_c4s7n"]
 
@@ -99,6 +100,7 @@ theme_override_constants/separation = 10
 [node name="Title" type="Label" parent="TitleContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.545098, 0.427451, 0.611765, 1)
+theme_override_fonts/font = ExtResource("2_6mp2g")
 theme_override_font_sizes/font_size = 36
 text = "Russian Roulette"
 horizontal_alignment = 1
@@ -215,6 +217,30 @@ grow_vertical = 2
 pivot_offset = Vector2(20, 20)
 texture = ExtResource("2_c4s7n")
 
+[node name="CreditsContainer" type="VBoxContainer" parent="."]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -210.0
+offset_top = -64.0
+grow_horizontal = 0
+grow_vertical = 0
+alignment = 1
+
+[node name="Credits0" type="Button" parent="CreditsContainer"]
+layout_mode = 2
+theme = ExtResource("2_a3mcj")
+theme_override_font_sizes/font_size = 14
+text = "Revolver model by HYQQM"
+
+[node name="Credits1" type="Button" parent="CreditsContainer"]
+layout_mode = 2
+theme = ExtResource("2_a3mcj")
+theme_override_font_sizes/font_size = 14
+text = "\"OIL 6\" palette by GrafxKid "
+
 [connection signal="pressed" from="TitleContainer/JoinButton" to="." method="_on_join_button_pressed"]
 [connection signal="pressed" from="TitleContainer/HostButton" to="." method="_on_host_button_pressed"]
 [connection signal="pressed" from="TitleContainer/OptionsButton" to="." method="_on_options_button_pressed"]
@@ -223,3 +249,5 @@ texture = ExtResource("2_c4s7n")
 [connection signal="pressed" from="JoinContainer/HBoxContainer/JoinAddressButton" to="." method="_on_join_address_button_pressed"]
 [connection signal="pressed" from="HostContainer/HBoxContainer/ReturnButton" to="." method="_on_return_button_pressed"]
 [connection signal="pressed" from="HostContainer/HBoxContainer/HostAddressButton" to="." method="_on_host_address_button_pressed"]
+[connection signal="pressed" from="CreditsContainer/Credits0" to="." method="_on_credits_0_pressed"]
+[connection signal="pressed" from="CreditsContainer/Credits1" to="." method="_on_credits_1_pressed"]
