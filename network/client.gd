@@ -1,6 +1,8 @@
 extends Node
 
+const SEND_DELAY = 0.2
 signal game_start
+signal game_stop
 signal my_turn(cylinder)
 signal got_players(players)
 
@@ -25,12 +27,16 @@ func say(s: String):
 func handle_message(message: Dictionary):
 	if message["command"] == "start":
 		game_start.emit()
+	elif message["command"] == "stop":
+		game_stop.emit()
 	elif message["command"] == "join":
 		id = message["id"]
 	elif message["command"] == "turn" and message["id"] == id:
 		my_turn.emit(message["cylinder"])
 	elif message["command"] == "players":
 		got_players.emit(message["players"])
+	elif message["command"] == "winner":
+		say("Лежать плюс сосать!")
 
 func is_open():
 	return ws.get_ready_state() == WebSocketPeer.STATE_OPEN
@@ -53,3 +59,4 @@ func send(command: Dictionary) -> bool:
 		return false
 	else:
 		return true
+	await get_tree().create_timer(SEND_DELAY).timeout

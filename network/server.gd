@@ -1,52 +1,94 @@
 extends Node
 
 
+const SEND_DELAY = 0.2
 var players: Dictionary = {}
-var serv = TCPServer.new()
+var serv: TCPServer
 var stream: StreamPeerTCP
-var ready_players: Dictionary = {}
 var started = false
 var turn = 0
-
-func _ready() -> void:
-	pass
-	#Performance.add_custom_monitor("Network/Players", get_players_count)
-
-#func get_players_count():
-	#return players.size()
 
 func say(s: String):
 	print_rich("[color=cyan]" + s + "[/color]")
 
+## Start server
 func start(port: int, address: String = "127.0.0.1"):
+	serv = TCPServer.new()
 	if address == "localhost":
 		return serv.listen(port) == OK
 	return serv.listen(port, address) == OK
 
+## Check server
 func is_running():
 	return serv.is_listening()
 
+## Stop server
 func stop():
-	for id in players.keys():
-		players[id].close()
-		while players[id].get_ready_state() != WebSocketPeer.STATE_CLOSED:
+	for player in players.values():
+		player.ws.close()
+		while player.ws.get_ready_state() != WebSocketPeer.STATE_CLOSED:
 			await get_tree().create_timer(0.1).timeout
 	players.clear()
 	serv.stop()
 
-func restart_game():
-	ready_players.clear()
-	turn = 0
+## Check if all players are ready
+func all_ready():
+	if players.size() < 2:
+		return false
+	for player in players.values():
+		if player.ready == false:
+			return false
+	return true
+
+# Init game variables and broadcast
+func game_start():
+	started = true
+	turn = -1
+	var cylinder = [1,0,0,0,0,0]
+	cylinder.shuffle()
+	for player: Player in players.values():
+		player.alive = true
+	var next_id = next()
+	broadcast({"command": "start"})
+	sendi(
+		next_id,
+		{
+			"command": "turn", 
+			"id": next_id, 
+			"cylinder": cylinder
+		}
+	)
+	#broadcast({"command": "turn", "id": players.keys()[turn], "cylinder": cylinder})
+
+## Clear game variables and broadcast
+func game_stop():
 	started = false
-	broadcast({"command": "restart"})
+	for player: Player in players.values():
+		player.ready = false
+	broadcast({"command": "stop"})
+
+## Advance turn and get next player id
+func next() -> int:
+	turn = 0 if turn + 1 >= players.size() else turn + 1
+	return players.keys()[turn]
+
+func last_alive():
+	var res_id = -1
+	var count = 0
+	for id in players.keys():
+		if players[id].alive:
+			res_id = id
+			count += 1
+	say("not yet" if res_id < 0 else "%d is the last player alive" % res_id)
+	return res_id if count == 1 else -1
 
 func _process(_delta: float) -> void:
 	# accept new connections
-	if serv.is_listening() and not started:
+	if serv != null and serv.is_listening() and not started:
 		accept_connection()
 	# poll players
 	for id in players.keys():
-		var ws = players[id]
+		var ws = players[id].ws
 		ws.poll()
 		var state = ws.get_ready_state()
 		if state == WebSocketPeer.STATE_OPEN:
@@ -64,43 +106,62 @@ func accept_connection():
 		var ws = WebSocketPeer.new()
 		if ws.accept_stream(stream) == OK:
 			var id = hash(ws.get_connected_host() + str(ws.get_connected_port()))
-			players[id] = ws
+			players[id] = Player.new(ws)
 			while ws.get_ready_state() != WebSocketPeer.STATE_OPEN:
-				await get_tree().create_timer(1.0).timeout
+				await get_tree().create_timer(0.2).timeout
 			send(ws, {"command": "join", "id": id})
 			broadcast({"command": "players", "players": players.keys()})
 			say("> %d" % id)
 
-
+## Send message to a player
 func send(ws: WebSocketPeer, command: Dictionary):
 	ws.put_var(command)
-	await get_tree().create_timer(0.5).timeout
+	await get_tree().create_timer(SEND_DELAY).timeout
 
+func sendi(id: int, command: Dictionary):
+	players[id].ws.put_var(command)
+	await get_tree().create_timer(SEND_DELAY).timeout
 
+## Send message to all players
 func broadcast(command: Dictionary):
-	for ws: WebSocketPeer in players.values():
-		ws.poll()
-		if ws.get_ready_state() == WebSocketPeer.STATE_OPEN:
-			ws.put_var(command)
-	await get_tree().create_timer(0.5).timeout
+	for player: Player in players.values():
+		#player.ws.poll()
+		if player.ws.get_ready_state() == WebSocketPeer.STATE_OPEN:
+			player.ws.put_var(command)
+	await get_tree().create_timer(SEND_DELAY).timeout
 
 
 func handle_message(id: int, message: Dictionary):
 	if message["command"] == "ready":
-		ready_players[id] = true
-		if ready_players.has_all(players.keys()):
-			started = true
-			broadcast({"command": "start"})
-			broadcast({"command": "turn", "id": players.keys()[turn], "cylinder": [1,0,0,0,0,0]})
+		players[id].ready = true
+		if all_ready():
+			game_start()
 	elif message["command"] == "lose":
-		players[id].close()
-		if players.size() == 0:
-			return
-		turn = 0 if turn + 1 >= players.size() else turn + 1
-		broadcast({"command": "turn", "id": players.keys()[turn], "cylinder": message["cylinder"]})
+		players[id].alive = false
+		if last_alive() < 0:
+			var next_id = next()
+			sendi(
+				next_id,
+				{
+					"command": "turn", 
+					"id": next_id, 
+					"cylinder": message["cylinder"]
+				}
+			)
+		else:
+			var alive_id = last_alive()
+			sendi(alive_id, {"command": "winner"})
+			game_stop()
 	elif message["command"] == "pass":
-		turn = 0 if turn + 1 >= players.size() else turn + 1
-		broadcast({"command": "turn", "id": players.keys()[turn], "cylinder": message["cylinder"]})
+		var next_id = next()
+		sendi(
+			next_id,
+			{
+				"command": "turn", 
+				"id": next_id, 
+				"cylinder": message["cylinder"]
+			}
+		)
 	elif message["command"] == "players":
 		broadcast({"command": "players", "players": players.keys()})
 	else:

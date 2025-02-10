@@ -11,12 +11,10 @@ const MAIN = preload("res://components/main.theme")
 func _ready() -> void:
 	cylinder.shuffle()
 	Client.game_start.connect(on_game_start)
+	Client.game_stop.connect(on_game_stop)
 	Client.my_turn.connect(on_my_turn)
 	Client.got_players.connect(on_got_players)
 	Client.send({"command": "players"})
-	#if Server.is_running():
-		#debug.put("I'm a host, broadcasting players...")
-		#players_timer.start()
 
 
 func _on_disconnect_button_pressed() -> void:
@@ -32,6 +30,10 @@ func _on_ready_button_pressed() -> void:
 func on_game_start():
 	debug.put("Game started!")
 	$Hub.hide()
+
+func on_game_stop():
+	debug.put("Game ended!")
+	$Hub.show()
 
 func on_got_players(players: Array):
 	for ch in players_container.get_children():
@@ -69,15 +71,11 @@ func _on_trigger_button_pressed() -> void:
 	cylinder.push_front(cylinder.pop_back())
 	anim.play("shot")
 	if cylinder.front() == 1:
-		$StatusLabel.text = "Boom!"
+		debug.put("Boom!")
 		$Sounds/GunshotSound.play()
 		Client.send({"command": "lose", "cylinder": cylinder})
-		await get_tree().create_timer(1.0).timeout
-		Client.leave()
-		$HBoxContainer.hide()
-		$ReturnButton.show()
 	else:
-		$StatusLabel.text = "Click..."
+		debug.put("Click...")
 		$Sounds/TriggerSound.play()
 		Client.send({"command": "pass", "cylinder": cylinder})
 
@@ -85,7 +83,3 @@ func _on_trigger_button_pressed() -> void:
 func _on_return_button_pressed() -> void:
 	Server.stop()
 	get_tree().change_scene_to_file("res://scenes/main_menu/main_menu.tscn")
-
-
-#func _on_players_timer_timeout() -> void:
-	#Client.send({"command": "players"})

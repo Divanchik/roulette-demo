@@ -2,7 +2,10 @@ extends Object
 class_name Player
 
 var ws: WebSocketPeer
-var nickname: String
+var ready: bool
+var alive: bool
 
-func _init() -> void:
-	pass
+func _init(websocket) -> void:
+	ws = websocket
+	ready = false
+	alive = true
