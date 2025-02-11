@@ -1,6 +1,13 @@
 extends CanvasLayer
 var addr_temp = RegEx.create_from_string(r"localhost:\d{4,5}|\d{,3}\.\d{,3}\.\d{,3}\.\d{,3}:\d{4,5}")
 
+
+func alert(title: String, text: String):
+	$AcceptDialog.title = title
+	$AcceptDialog.dialog_text = text
+	$AcceptDialog.show()
+
+
 func _on_join_button_pressed() -> void:
 	$TitleContainer.hide()
 	$JoinContainer.show()
@@ -19,31 +26,33 @@ func _on_exit_button_pressed() -> void:
 	get_tree().quit()
 
 
-func _on_join_address_button_pressed() -> void:
-	$JoinContainer.hide()
-	var tmp = addr_temp.search($JoinContainer/JoinAddress.text)
-	if tmp.get_start() < 0:
-		$AcceptDialog.dialog_text = "Неверный адрес"
-		$AcceptDialog.show()
-		$TitleContainer.show()
-		return
-	var success = Client.join($JoinContainer/JoinAddress.text)
+func join_url(url: String):
+	var err = Client.join(url)
 	$AnimationPlayer.play("loading")
 	await $AnimationPlayer.animation_finished
-	if success and Client.is_open():
+	if err == OK and Client.is_open():
 		get_tree().change_scene_to_file("res://scenes/game/game.tscn")
+	elif err == ERR_CANT_CONNECT:
+		alert("Ошибка", "Не удалось подключиться к игре")
+	elif err == ERR_CONNECTION_ERROR:
+		alert("Ошибка", "Ошибка подключения")
+	elif err == ERR_CANT_RESOLVE or err == OK:
+		alert("Ошибка", "Неверный адрес подключения")
 	else:
-		$AcceptDialog.dialog_text = "Не удалось подключиться к игре"
-		$AcceptDialog.show()
-		$TitleContainer.show()
+		alert("Ошибка", "Номер ошибки: %d" % err)
+
+
+func _on_join_address_button_pressed() -> void:
+	$JoinContainer.hide()
+	await join_url($JoinContainer/JoinAddress.text)
+	$TitleContainer.show()
 
 
 func _on_host_address_button_pressed() -> void:
 	$HostContainer.hide()
 	var tmp = addr_temp.search($HostContainer/HostAddress.text)
 	if tmp.get_start() < 0:
-		$AcceptDialog.dialog_text = "Неверный адрес"
-		$AcceptDialog.show()
+		alert("Ошибка", "Неверный адрес!")
 		$TitleContainer.show()
 		return
 	var addr = $HostContainer/HostAddress.text.split(":")
@@ -52,15 +61,8 @@ func _on_host_address_button_pressed() -> void:
 		$AcceptDialog.show()
 		$TitleContainer.show()
 		return
-	var success = Client.join($HostContainer/HostAddress.text)
-	$AnimationPlayer.play("loading")
-	await $AnimationPlayer.animation_finished
-	if success and Client.is_open():
-		get_tree().change_scene_to_file("res://scenes/game/game.tscn")
-	else:
-		$AcceptDialog.dialog_text = "Не удалось подключиться к игре"
-		$AcceptDialog.show()
-		$TitleContainer.show()
+	await join_url($HostContainer/HostAddress.text)
+	$TitleContainer.show()
 
 
 func _on_return_button_pressed() -> void:

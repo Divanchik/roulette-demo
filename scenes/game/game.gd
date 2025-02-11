@@ -8,12 +8,14 @@ var cylinder = [1, 0, 0, 0, 0, 0]
 const MAIN = preload("res://components/main.theme")
 @onready var anim = $ColtPython/AnimationPlayer
 
+
 func _ready() -> void:
 	cylinder.shuffle()
 	Client.game_start.connect(on_game_start)
 	Client.game_stop.connect(on_game_stop)
 	Client.my_turn.connect(on_my_turn)
 	Client.got_players.connect(on_got_players)
+	#Client.leave_game.connect(_on_disconnect_button_pressed)
 	Client.send({"command": "players"})
 
 
@@ -31,9 +33,11 @@ func on_game_start():
 	debug.put("Game started!")
 	$Hub.hide()
 
+
 func on_game_stop():
 	debug.put("Game ended!")
 	$Hub.show()
+
 
 func on_got_players(players: Array):
 	for ch in players_container.get_children():
@@ -50,7 +54,6 @@ func on_my_turn(last_cylinder: Array):
 	debug.put("My turn: " + str(last_cylinder))
 	await get_tree().create_timer(0.5).timeout
 	$StatusLabel.text = "My turn"
-	#$Sounds/CockSound.play()
 	anim.play("cock")
 	cylinder.clear()
 	cylinder.append_array(last_cylinder)
@@ -62,8 +65,8 @@ func on_my_turn(last_cylinder: Array):
 func _on_shuffle_button_pressed() -> void:
 	$HBoxContainer/ShuffleButton.disabled = true
 	cylinder.shuffle()
-	#$Sounds/ShuffleSound.play()
 	anim.play("shuffle")
+
 
 func _on_trigger_button_pressed() -> void:
 	$HBoxContainer/ShuffleButton.disabled = true

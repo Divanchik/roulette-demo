@@ -197,7 +197,6 @@ theme = ExtResource("2_a3mcj")
 text = "HOST"
 
 [node name="AcceptDialog" type="AcceptDialog" parent="."]
-title = "Ошибка"
 initial_position = 1
 size = Vector2i(300, 200)
 

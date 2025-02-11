@@ -3,6 +3,7 @@ extends Node
 const SEND_DELAY = 0.2
 signal game_start
 signal game_stop
+signal leave_game
 signal my_turn(cylinder)
 signal got_players(players)
 
@@ -37,18 +38,18 @@ func handle_message(message: Dictionary):
 		got_players.emit(message["players"])
 	elif message["command"] == "winner":
 		say("Лежать плюс сосать!")
+	#elif message["command"] == "leave":
+		#leave_game.emit()
 
 func is_open():
 	return ws.get_ready_state() == WebSocketPeer.STATE_OPEN
 
-func join(url: String) -> bool:
+func join(url: String):
 	ws = WebSocketPeer.new()
 	var err = ws.connect_to_url(url)
-	if err != OK:
-		return false
-	else:
+	if err == OK:
 		log_closed = true
-		return true
+	return err
 
 func leave():
 	ws.close()

@@ -8,8 +8,10 @@ var stream: StreamPeerTCP
 var started = false
 var turn = 0
 
+
 func say(s: String):
 	print_rich("[color=cyan]" + s + "[/color]")
+
 
 ## Start server
 func start(port: int, address: String = "127.0.0.1"):
@@ -18,9 +20,11 @@ func start(port: int, address: String = "127.0.0.1"):
 		return serv.listen(port) == OK
 	return serv.listen(port, address) == OK
 
+
 ## Check server
 func is_running():
 	return serv.is_listening()
+
 
 ## Stop server
 func stop():
@@ -31,6 +35,7 @@ func stop():
 	players.clear()
 	serv.stop()
 
+
 ## Check if all players are ready
 func all_ready():
 	if players.size() < 2:
@@ -39,6 +44,7 @@ func all_ready():
 		if player.ready == false:
 			return false
 	return true
+
 
 # Init game variables and broadcast
 func game_start():
@@ -58,7 +64,7 @@ func game_start():
 			"cylinder": cylinder
 		}
 	)
-	#broadcast({"command": "turn", "id": players.keys()[turn], "cylinder": cylinder})
+
 
 ## Clear game variables and broadcast
 func game_stop():
@@ -67,10 +73,12 @@ func game_stop():
 		player.ready = false
 	broadcast({"command": "stop"})
 
+
 ## Advance turn and get next player id
 func next() -> int:
 	turn = 0 if turn + 1 >= players.size() else turn + 1
 	return players.keys()[turn]
+
 
 func last_alive():
 	var res_id = -1
@@ -81,6 +89,7 @@ func last_alive():
 			count += 1
 	say("not yet" if res_id < 0 else "%d is the last player alive" % res_id)
 	return res_id if count == 1 else -1
+
 
 func _process(_delta: float) -> void:
 	# accept new connections
@@ -96,7 +105,14 @@ func _process(_delta: float) -> void:
 				handle_message(id, ws.get_var())
 		elif state == WebSocketPeer.STATE_CLOSED:
 			players.erase(id)
-			broadcast({"command": "players", "players": players.keys()})
+			if players.size() < 2 and started:
+				game_stop()
+				say("Not enough players to continue")
+			elif players.size() == 0:
+				game_stop()
+				stop()
+			else:
+				broadcast({"command": "players", "players": players.keys()})
 			say("< %d" % id)
 
 
@@ -113,14 +129,17 @@ func accept_connection():
 			broadcast({"command": "players", "players": players.keys()})
 			say("> %d" % id)
 
+
 ## Send message to a player
 func send(ws: WebSocketPeer, command: Dictionary):
 	ws.put_var(command)
 	await get_tree().create_timer(SEND_DELAY).timeout
 
+
 func sendi(id: int, command: Dictionary):
 	players[id].ws.put_var(command)
 	await get_tree().create_timer(SEND_DELAY).timeout
+
 
 ## Send message to all players
 func broadcast(command: Dictionary):
