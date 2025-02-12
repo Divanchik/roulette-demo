@@ -3,7 +3,6 @@ extends Node
 const SEND_DELAY = 0.2
 signal game_start
 signal game_stop
-signal leave_game
 signal my_turn(cylinder)
 signal got_players(players)
 
@@ -56,8 +55,8 @@ func leave():
 
 func send(command: Dictionary) -> bool:
 	var err = ws.put_var(command)
+	await get_tree().create_timer(SEND_DELAY).timeout
 	if err != OK:
 		return false
 	else:
 		return true
-	await get_tree().create_timer(SEND_DELAY).timeout

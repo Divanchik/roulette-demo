@@ -3,7 +3,7 @@ extends CanvasLayer
 
 var shuffled = false
 var cylinder = [1, 0, 0, 0, 0, 0]
-@onready var players_container: VBoxContainer = $ScrollContainer/PlayersContainer
+@onready var players_container: VBoxContainer = %PlayersContainer
 @onready var debug: CanvasLayer = $DebugOverlay
 const MAIN = preload("res://components/main.theme")
 @onready var anim = $ColtPython/AnimationPlayer
@@ -43,11 +43,11 @@ func on_got_players(players: Array):
 	for ch in players_container.get_children():
 		ch.queue_free()
 	for player in players:
-		var btn = Button.new()
-		btn.text = str(player)
-		btn.disabled = true
-		btn.theme = MAIN
-		players_container.add_child(btn)
+		var tmp = Label.new()
+		tmp.text = str(player)
+		tmp.theme = MAIN
+		tmp.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		players_container.add_child(tmp)
 
 
 func on_my_turn(last_cylinder: Array):
